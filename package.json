@@ -1,0 +1,20 @@
+{
+  "name": "trello-objects",
+  "version": "0.0.0",
+  "description": "Domain classes representing Trello objects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "trello",
+    "classes",
+    "objects"
+  ],
+  "author": "Si Levy <simonjlevy@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "request-promise": "^1.0.2",
+    "simple-rate-limiter": "^0.2.3"
+  }
+}
