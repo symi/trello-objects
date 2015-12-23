@@ -20,10 +20,17 @@ class List {
         return this._cards;         
     }
     
-    *addCard() {
-        let card = yield* Card.add(this.id, name);
-        this._cards.push(card);
-        return card;
+    *getOrAddCard(name) {
+        yield* this.getCards();
+        let card = yield* Card.getOrAdd(this.id, name),
+            found = this._cards.find(c => card.id === c.id);
+        
+        if (found) {
+            return found;
+        } else {
+            this._cards.push(card);
+            return card;
+        }
     }
     
     static *getOrAdd(boardId, name, recursive) {
@@ -54,13 +61,9 @@ class List {
     }
     
     static *getAll(boardId, recursive) {
-        let lists = yield trello.request({
-            baseUrl: trello.baseUrl,
-            url: `boards/${boardId}/lists`,
-            qs: {
+        let lists = yield trello.request('get', `boards/${boardId}/lists`, {
                 filter: 'open'
-            }
-        });
+            });
         
         return lists
             .map(l => {

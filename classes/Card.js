@@ -34,10 +34,17 @@ class Card {
         return this._checklists;               
     }
     
-    *addChecklist() {
-        let checklist = yield* Checklist.add(this.id, name)
-        this._checklists.push(checklist);
-        return checklist;
+    *getOrAddChecklist(name) {
+        yield* this.getChecklists();
+        let checklist = yield* Checklist.getOrAdd(this.id, name),
+            found = this._checklists.find(c => checklist.id === c.id);
+        
+        if (found) {
+            return found;
+        } else {
+            this._checklists.push(checklist);
+            return checklist;
+        }
     }
     
     static *getOrAdd(listId, name, recursive) {
@@ -68,12 +75,8 @@ class Card {
     }
     
     static *getAll(listId, recursive) {
-        let cards = yield trello.request({
-            baseUrl: trello.baseUrl,
-            url: `lists/${listId}/cards`,
-            qs: {
-                filter: 'open'
-            }
+        let cards = yield trello.request('get', `lists/${listId}/cards`, {
+            filter: 'open'
         });
         
         return cards

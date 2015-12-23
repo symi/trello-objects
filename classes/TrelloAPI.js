@@ -22,10 +22,14 @@ function limit(defaultedRp) {
     };
 }
 
+function defaultUrl(url) {
+    return (url == null || url === '') ? '/' : url;
+}
+
 class TrelloAPI {
     constructor(type) {
         this.type = `${type.name.toLowerCase()}s`;
-        this.request = limit(rp.defaults({
+        this._request = limit(rp.defaults({
             baseUrl: `${baseUrl}${this.type}/`,
             qs: {
                 key, token
@@ -50,12 +54,17 @@ class TrelloAPI {
         token = value;
     }
     
-    get baseUrl() {
-        return baseUrl;
+    *request(method, url, options) {        
+        return yield this._request(Object.assign({}, {
+            baseUrl,
+            method,
+            url
+        }, { qs: options }));
     }
     
     *get(url, options) {
-        return yield this.request({
+        url = defaultUrl(url);
+        return yield this._request({
             method: 'get',
             url,
             qs: options,
@@ -63,7 +72,8 @@ class TrelloAPI {
     }
     
     *put(url, options) {
-        return yield this.request({
+        url = defaultUrl(url);
+        return yield this._request({
             method: 'put',
             url,
             qs: options,
@@ -71,7 +81,8 @@ class TrelloAPI {
     }
     
     *post(url, options) {
-        return yield this.request({
+        url = defaultUrl(url);
+        return yield this._request({
             method: 'post',
             url,
             qs: options,
@@ -79,7 +90,8 @@ class TrelloAPI {
     }
     
     *delete(url, options) {
-        return yield this.request({
+        url = defaultUrl(url);
+        return yield this._request({
             method: 'delete',
             url,
             qs: options,

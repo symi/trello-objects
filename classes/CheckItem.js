@@ -32,23 +32,15 @@ class CheckItem {
     }
     
     static *add(checklistId, name, position) {
-        let checkItem = yield trello.request({
-            baseUrl: trello.baseUrl,
-            url: `checklists/${checklistId}/checkItems`,
-            method: 'post',
-            qs: {
+        let checkItem = yield trello.request('post', `checklists/${checklistId}/checkItems`, {
                 name,
                 pos: position
-            }            
-        });
+            });
         return new CheckItem(checkItem);
     }
     
     static *getAll(checklistId) {
-        let checkItems = yield trello.request({
-            baseUrl: trello.baseUrl,
-            url: `checklists/${checklistId}/checkItems`            
-        });
+        let checkItems = yield trello.request('get', `checklists/${checklistId}/checkItems`);
         
         return checkItems
             .map(c => new CheckItem(c));   

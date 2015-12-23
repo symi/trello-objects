@@ -33,10 +33,17 @@ class Checklist {
         return this._checkItems;          
     }
     
-    *addCheckItem() {
-        let checkItem = yield* CheckItem.add(this.id, name);
-        this._checkItems.push(checkItem);
-        return checkItem;
+    *getOrAddCheckItem(name) {
+        yield* this.getCheckItems();
+        let checkItem = yield* CheckItem.getOrAdd(this.id, name),
+            found = this._checkItems.find(c => checkItem.id === c.id);
+        
+        if (found) {
+            return found;
+        } else {
+            this._checkItems.push(checkItem);
+            return checkItem;
+        }
     }
     
     static *getOrAdd(cardId, name, recursive) {
@@ -67,10 +74,7 @@ class Checklist {
     }
     
     static *getAll(cardId, recursive) {
-        let checklists = yield trello.request({
-            baseUrl: trello.baseUrl,
-            url: `cards/${cardId}/checklists`            
-        });
+        let checklists = yield trello.request('get', `cards/${cardId}/checklists`);
         
         return checklists
             .map(c => {

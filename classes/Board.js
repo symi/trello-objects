@@ -20,10 +20,17 @@ class Board {
         return this._lists;         
     }
     
-    *addList(name) {
-        let list = yield* List.add(this.id, name);
-        this._lists.push(list);
-        return list;
+    *getOrAddList(name) {
+        yield* this.getLists();
+        let list = yield* List.getOrAdd(this.id, name),
+            found = this._lists.find(l => list.id === l.id);
+        
+        if (found) {
+            return found;
+        } else {
+            this._lists.push(list);
+            return list;
+        }        
     }
     
     static *getOrAdd(name, recursive) {
@@ -55,10 +62,7 @@ class Board {
     }
     
     static *getAll() {
-        let boards = yield trello.request({
-            baseUrl: trello.baseUrl,
-            url: 'members/me/boards'
-        });
+        let boards = yield trello.request('get', 'members/me/boards');
         
         return boards
             .filter(board => !board.closed)
@@ -66,7 +70,7 @@ class Board {
     }
     
     static *getBulk(name) {
-        let board = yield* Board.get(name),
+        let board = yield* Board.getOrAdd(name),
             bulkData = yield trello.get(board.id, {
                 lists: 'open',
                 cards: 'open',
