@@ -14,13 +14,17 @@ class Checklist {
         this._position = checklist.pos;    
     }
     
-    *getPosition() {
+    get raw() {
+        return this._checklist;
+    }
+    
+    getPosition() {
         return this._position;
     }
     
     *setPosition(position) {
         this._position = position;
-        yield trello.put(`${this.id}/pos`, {
+        return yield trello.put(`${this.id}/pos`, {
             value: this._position
         });
     }

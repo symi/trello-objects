@@ -4,15 +4,24 @@ let trello;
 
 class CheckItem {
     constructor(checkItem) {
-        this._checklist = checkItem;
+        this._checkItem = checkItem;
         this.name = checkItem.name;
         this.id = checkItem.id;
         this.complete = checkItem.state === 'complete';
         this._position = checkItem.pos;    
     }
     
-    *getPosition() {
+    get raw() {
+        return this._checkItem;
+    }
+    
+    getPosition() {
         return this._position;
+    }
+    
+    // why does the checkItem not have an idChecklist property!
+    *remove(checklistId) {
+        return yield trello.request('delete', `checklists/${checklistId}/checkItems/${this.id}`);
     }
     
     static *getOrAdd(checklistId, name) {

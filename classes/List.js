@@ -12,6 +12,10 @@ class List {
         this._cards = undefined;          
     }
     
+    get raw() {
+        return this._list;
+    }
+    
     *getCards(recursive) {
         if (!Array.isArray(this._cards)) {
             this._cards = yield* Card.getAll(this.id, recursive);            

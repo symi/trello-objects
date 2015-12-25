@@ -54,44 +54,44 @@ class TrelloAPI {
         token = value;
     }
     
-    *request(method, url, options) {        
-        return yield this._request(Object.assign({}, {
+    request(method, url, options) {        
+        return this._request(Object.assign({}, {
             baseUrl,
             method,
             url
         }, { qs: options }));
     }
     
-    *get(url, options) {
+    get(url, options) {
         url = defaultUrl(url);
-        return yield this._request({
+        return this._request({
             method: 'get',
             url,
             qs: options,
         });
     }
     
-    *put(url, options) {
+    put(url, options) {
         url = defaultUrl(url);
-        return yield this._request({
+        return this._request({
             method: 'put',
             url,
             qs: options,
         });
     }
     
-    *post(url, options) {
+    post(url, options) {
         url = defaultUrl(url);
-        return yield this._request({
+        return this._request({
             method: 'post',
             url,
             qs: options,
         });
     }
     
-    *delete(url, options) {
+    delete(url, options) {
         url = defaultUrl(url);
-        return yield this._request({
+        return this._request({
             method: 'delete',
             url,
             qs: options,

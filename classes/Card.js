@@ -1,7 +1,9 @@
 'use strict';
 
 let trello,
-    Checklist;
+    Checklist,
+    Label,
+    Member;
 
 class Card {
     constructor(card) {
@@ -12,18 +14,36 @@ class Card {
         this._boardId = card.idBoard;
         this._listId = card.idList
         this._checklists = undefined; 
-        this._description = card.desc;         
+        this._description = card.desc;
+        this._members = undefined;   
     }
     
-    *getDescription() {
+    get raw() {
+        return this._card;
+    }
+    
+    *getList() {
+        return yield trello.get(`${this.id}/list`);     
+    }
+    
+    getDescription() {
         return this._description;
     }
     
     *setDescription(description) {
         this._description = description;
-        yield trello.put(`${this.id}/desc`, {
+        return yield trello.put(`${this.id}/desc`, {
             value: description
         });
+    }
+    
+    *getMembers() {
+        if (!Array.isArray(this._members)) {
+            let members = yield trello.get(`${this.id}/members`);
+            this._members = members.map(m => new Member(m));
+        }
+        
+        return this._members;
     }
     
     *getChecklists(recursive) {
@@ -32,6 +52,21 @@ class Card {
         } 
             
         return this._checklists;               
+    }
+    
+    *getOrAddMember(member) {
+        yield* this.getMembers();
+        let found = this._members.find(m => member.id === m.id);
+        
+        if (found) {
+            return found;
+        } else {
+            let m = new Member(yield trello.post(`${this.id}/idMembers`, {
+                value: member.id
+            })); 
+            this._members.push(m);
+            return m;
+        }
     }
     
     *getOrAddChecklist(name) {
@@ -61,7 +96,10 @@ class Card {
         let cards = yield* Card.getAll(listId),
             card = cards.find(card => card.name === name);
         
-        if (recursive && card) yield* card.getChecklists(recursive);
+        if (!(recursive && card)) return card;
+        
+        yield* card.getChecklists(recursive);
+        yield* card.getMembers();
         
         return card;        
     }
@@ -82,7 +120,10 @@ class Card {
         return cards
             .map(c => {
                 let card = new Card(c);               
-                if (recursive) card.getChecklists(recursive);
+                if (recursive) {
+                    card.getChecklists(recursive);
+                    card.getMembers();
+                }
                 return card;
             });
     }
@@ -92,14 +133,19 @@ class Card {
             let card = new Card(c);
             card._checklists = Checklist.getBulk({
                 checklists: c.checklists
-            });            
+            });
+            card._members = Member.getBulk({
+                members: c.members
+            });          
             return card;
         });
     }
 }
 
-module.exports = function (TrelloAPI, checklist) {
+module.exports = function (TrelloAPI, checklist, member, label) {
     trello = new TrelloAPI(Card);
     Checklist = checklist;
+    Member = member;
+    Label = label;
     return Card;
 };

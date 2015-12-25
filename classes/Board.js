@@ -1,7 +1,8 @@
 'use strict';
 
 let trello,
-    List;
+    List,
+    Member;
 
 class Board {
     constructor(board) {
@@ -9,7 +10,21 @@ class Board {
         this.name = board.name;
         this.id = board.id;
         this.closed = board.closed;
-        this._lists = undefined;          
+        this._lists = undefined; 
+        this._members = undefined;         
+    }
+    
+    get raw() {
+        return this._board;
+    }
+    
+    *getMembers() {
+        if (!Array.isArray(this._members)) {
+            let members = yield trello.get(`${this.id}/members`);
+            this._members = members.map(m => new Member(m));
+        }
+        
+        return this._members;
     }
     
     *getLists(recursive) {
@@ -50,6 +65,7 @@ class Board {
         if (!(recursive && board)) return board;
         
         yield* board.getLists(recursive);
+        yield* board.getMembers();
         
         return board;
     }
@@ -74,16 +90,34 @@ class Board {
             bulkData = yield trello.get(board.id, {
                 lists: 'open',
                 cards: 'open',
-                card_checklists: 'all'
-            });
+                card_checklists: 'all',                
+                members: 'all'
+            });               
+        
+        // because the bulk board get only returns memberIds for cards, not full member objects
+        bulkData.cards.forEach(c => {
+            c.members = new Array();
+            c.idMembers.forEach(memberId => {
+                let member = bulkData.members.find(m => m.id === memberId);
+                if (member) {
+                    c.members.push(member);
+                }  
+            });                
+        });
+        
+        board._members = Member.getBulk({
+            members: bulkData.members
+        });
         
         board._lists = List.getBulk(bulkData);
+        
         return board;
     }
 }
 
-module.exports = function (TrelloAPI, list) {
+module.exports = function (TrelloAPI, list, member) {
     trello = new TrelloAPI(Board);
     List = list;
+    Member = member;
     return Board;
 };
