@@ -15,7 +15,8 @@ class Card {
         this._listId = card.idList
         this._checklists = undefined; 
         this._description = card.desc;
-        this._members = undefined;   
+        this._members = undefined;
+        this._labels = undefined;
     }
     
     get raw() {
@@ -38,12 +39,29 @@ class Card {
     }
     
     *getMembers() {
-        if (!Array.isArray(this._members)) {
+        if (Array.isArray(this._members)) return this._members;
+        
+        if (Array.isArray(this._card.members)) {
+            this._members = this._card.members.map(m => new Member(m));
+        } else {
             let members = yield trello.get(`${this.id}/members`);
             this._members = members.map(m => new Member(m));
         }
         
         return this._members;
+    }
+    
+    *getLabels() {
+        if (Array.isArray(this._labels)) return this._labels;
+        
+        if (Array.isArray(this._card.labels)) {
+            this._labels = this._card.labels.map(l => new Label(l));
+        } else {
+            let labels = yield trello.get(`${this.id}/labels`);
+            this._labels = labels.map(l => new Label(l));
+        }
+        
+        return this._labels;
     }
     
     *getChecklists(recursive) {
@@ -66,6 +84,21 @@ class Card {
             })); 
             this._members.push(m);
             return m;
+        }
+    }
+    
+    *getOrAddLabel(label) {
+        yield* this.getLabels();
+        let found = this._labels.find(l => label.id === l.id);
+        
+        if (found) {
+            return found;
+        } else {
+            let l = new Label(yield trello.post(`${this.id}/idLabels`, {
+                value: label.id
+            })); 
+            this._labels.push(l);
+            return l;
         }
     }
     
@@ -100,6 +133,7 @@ class Card {
         
         yield* card.getChecklists(recursive);
         yield* card.getMembers();
+        yield* card.getLabels();
         
         return card;        
     }
@@ -123,6 +157,7 @@ class Card {
                 if (recursive) {
                     card.getChecklists(recursive);
                     card.getMembers();
+                    card.getLabels();
                 }
                 return card;
             });
@@ -136,7 +171,10 @@ class Card {
             });
             card._members = Member.getBulk({
                 members: c.members
-            });          
+            });
+            card._labels = Label.getBulk({
+                labels: c.labels    
+            });      
             return card;
         });
     }

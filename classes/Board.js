@@ -2,7 +2,8 @@
 
 let trello,
     List,
-    Member;
+    Member,
+    Label;
 
 class Board {
     constructor(board) {
@@ -11,7 +12,8 @@ class Board {
         this.id = board.id;
         this.closed = board.closed;
         this._lists = undefined; 
-        this._members = undefined;         
+        this._members = undefined;
+        this._labels = undefined;     
     }
     
     get raw() {
@@ -19,12 +21,29 @@ class Board {
     }
     
     *getMembers() {
-        if (!Array.isArray(this._members)) {
+        if (Array.isArray(this._members)) return this._members;
+        
+        if (Array.isArray(this._board.members)) {
+            this._members = this._board.members.map(m => new Member(m));
+        } else {
             let members = yield trello.get(`${this.id}/members`);
             this._members = members.map(m => new Member(m));
         }
         
         return this._members;
+    }
+    
+    *getLabels() {
+        if (Array.isArray(this._labels)) return this._labels;
+        
+        if (Array.isArray(this._board.labels)) {
+            this._labels = this._board.labels.map(l => new Label(l));
+        } else {
+            let labels = yield trello.get(`${this.id}/labels`);
+            this._labels = labels.map(l => new Label(l));
+        }
+        
+        return this._labels;
     }
     
     *getLists(recursive) {
@@ -66,6 +85,7 @@ class Board {
         
         yield* board.getLists(recursive);
         yield* board.getMembers();
+        yield* board.getLabels();
         
         return board;
     }
@@ -91,7 +111,8 @@ class Board {
                 lists: 'open',
                 cards: 'open',
                 card_checklists: 'all',                
-                members: 'all'
+                members: 'all',
+                labels: 'all'
             });               
         
         // because the bulk board get only returns memberIds for cards, not full member objects
@@ -109,15 +130,20 @@ class Board {
             members: bulkData.members
         });
         
+        board._lables = Label.getBulk({
+            labels: bulkData.labels
+        });
+        
         board._lists = List.getBulk(bulkData);
         
         return board;
     }
 }
 
-module.exports = function (TrelloAPI, list, member) {
+module.exports = function (TrelloAPI, list, member, label) {
     trello = new TrelloAPI(Board);
     List = list;
     Member = member;
+    Label = label;
     return Board;
 };

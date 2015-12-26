@@ -13,7 +13,7 @@ function trelloObjects (key, token) {
     classes.Checklist = require('./classes/Checklist')(TrelloAPI, classes.CheckItem);
     classes.Card = require('./classes/Card')(TrelloAPI, classes.Checklist, classes.Member, classes.Label);
     classes.List = require('./classes/List')(TrelloAPI, classes.Card);
-    classes.Board = require('./classes/Board')(TrelloAPI, classes.List, classes.Member);
+    classes.Board = require('./classes/Board')(TrelloAPI, classes.List, classes.Member, classes.Label);
         
     return classes;
 }
