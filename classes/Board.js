@@ -67,6 +67,14 @@ class Board {
         }        
     }
     
+    *iterateAllCards(callbackFn, context) {        
+        for (let l of yield* this.getLists()) {
+            for (let c of yield* this.getCards()) {
+                callbackFn.call(context, c);
+            }
+        }
+    }
+    
     static *getOrAdd(name, recursive) {
         let board = yield* Board.get(name, recursive);
         

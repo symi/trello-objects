@@ -37,9 +37,9 @@ class Checklist {
         return this._checkItems;          
     }
     
-    *getOrAddCheckItem(name) {
+    *getOrAddCheckItem(name, position) {
         yield* this.getCheckItems();
-        let checkItem = yield* CheckItem.getOrAdd(this.id, name),
+        let checkItem = yield* CheckItem.getOrAdd(this.id, name, position),
             found = this._checkItems.find(c => checkItem.id === c.id);
         
         if (found) {

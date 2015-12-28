@@ -24,11 +24,11 @@ class CheckItem {
         return yield trello.request('delete', `checklists/${checklistId}/checkItems/${this.id}`);
     }
     
-    static *getOrAdd(checklistId, name) {
+    static *getOrAdd(checklistId, name, position) {
         let checkItem = yield* CheckItem.get(checklistId, name);
         
         if (!checkItem) {
-            checkItem = yield* CheckItem.add(checklistId, name);
+            checkItem = yield* CheckItem.add(checklistId, name, position);
         }
         
         return checkItem;

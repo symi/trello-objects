@@ -11,6 +11,7 @@ class Card {
         this.name = card.name;
         this.id = card.id;
         this.url = card.url;
+        this.shortLink = card.shortLink;
         this._boardId = card.idBoard;
         this._listId = card.idList
         this._checklists = undefined; 
