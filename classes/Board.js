@@ -69,7 +69,7 @@ class Board {
     
     *iterateAllCards(callbackFn, context) {        
         for (let l of yield* this.getLists()) {
-            for (let c of yield* this.getCards()) {
+            for (let c of yield* l.getCards()) {
                 callbackFn.call(context, c);
             }
         }
