@@ -14,18 +14,24 @@ class Card {
         this.shortLink = card.shortLink;
         this._boardId = card.idBoard;
         this._listId = card.idList
-        this._checklists = undefined; 
+        this._checklists = Checklist.getBulk({
+            checklists: card.checklists
+        });
         this._description = card.desc;
-        this._members = undefined;
-        this._labels = undefined;
+        this._members = Member.getBulk({
+            members: card.members
+        });
+        this._labels = Label.getBulk({
+            labels: card.labels
+        }); 
     }
     
     get raw() {
         return this._card;
     }
     
-    *getList() {
-        return yield trello.get(`${this.id}/list`);     
+    *getListName() {
+        return (yield trello.get(`${this.id}/list`)).name;     
     }
     
     getDescription() {
@@ -165,19 +171,8 @@ class Card {
     }
     
     static getBulk(bulkData) {
-        return bulkData.cards.map(c => {
-            let card = new Card(c);
-            card._checklists = Checklist.getBulk({
-                checklists: c.checklists
-            });
-            card._members = Member.getBulk({
-                members: c.members
-            });
-            card._labels = Label.getBulk({
-                labels: c.labels    
-            });      
-            return card;
-        });
+        if (!Array.isArray(bulkData.cards)) return;        
+        return bulkData.cards.map(c => new Card(c));
     }
 }
 

@@ -9,7 +9,9 @@ class List {
         this.name = list.name;
         this.id = list.id;
         this._boardId = list.idBoard;
-        this._cards = undefined;          
+        this._cards = Card.getBulk({
+            cards: (list.cards || []).filter(c => c.idList === list.id)
+        });         
     }
     
     get raw() {
@@ -78,13 +80,8 @@ class List {
     }
     
     static getBulk(bulkData) {
-        return bulkData.lists.map(l => {
-            let list = new List(l);
-            list._cards = Card.getBulk({
-                cards: bulkData.cards.filter(c => c.idList === list.id)
-            });            
-            return list;
-        });
+        if (!Array.isArray(bulkData.lists)) return;
+        return bulkData.lists.map(l => new List(l));
     }
 }
 

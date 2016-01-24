@@ -11,9 +11,13 @@ class Board {
         this.name = board.name;
         this.id = board.id;
         this.closed = board.closed;
-        this._lists = undefined; 
-        this._members = undefined;
-        this._labels = undefined;     
+        this._lists = List.getBulk(board); 
+        this._members = Member.getBulk({
+            members: board.members
+        });
+        this._labels = Label.getBulk({
+            labels: board.labels
+        });     
     }
     
     get raw() {
@@ -134,17 +138,7 @@ class Board {
             });                
         });
         
-        board._members = Member.getBulk({
-            members: bulkData.members
-        });
-        
-        board._lables = Label.getBulk({
-            labels: bulkData.labels
-        });
-        
-        board._lists = List.getBulk(bulkData);
-        
-        return board;
+        return new Board(bulkData);        
     }
 }
 

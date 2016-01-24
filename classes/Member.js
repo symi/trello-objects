@@ -15,7 +15,8 @@ class Member {
     }
     
     static getBulk(bulkData) {
-        return bulkData.members.map(m => new Member(m));
+        if (!Array.isArray(bulkData.members)) return;        
+        return bulkData.members.map(m => new Member(m));        
     }
 }
 

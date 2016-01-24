@@ -10,7 +10,9 @@ class Checklist {
         this.id = checklist.id;
         this._boardId = checklist.idBoard;
         this._cardId = checklist.idCard;
-        this._checkItems = undefined;
+        this._checkItems = CheckItem.getBulk({
+            checkItems: checklist.checkItems
+        });        
         this._position = checklist.pos;    
     }
     
@@ -89,13 +91,8 @@ class Checklist {
     }
     
     static getBulk(bulkData) {
-        return bulkData.checklists.map(c => {
-            let checklist = new Checklist(c);
-            checklist._checkItems = CheckItem.getBulk({
-                checkItems: c.checkItems
-            });            
-            return checklist;
-        });
+        if (!Array.isArray(bulkData.checklists)) return;
+        return bulkData.checklists.map(c => new Checklist(c));
     }
 }
 

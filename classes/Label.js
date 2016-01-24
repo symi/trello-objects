@@ -25,6 +25,7 @@ class Label {
     }
     
     static getBulk(bulkData) {
+        if (!Array.isArray(bulkData.labels)) return;
         return bulkData.labels.map(l => new Label(l));
     }  
 }
