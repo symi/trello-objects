@@ -9,8 +9,9 @@ class List {
         this.name = list.name;
         this.id = list.id;
         this._boardId = list.idBoard;
+        let listsCards = (list.cards || []).filter(c => c.idList === list.id);
         this._cards = Card.getBulk({
-            cards: (list.cards || []).filter(c => c.idList === list.id)
+            cards: (listsCards.length ? listsCards : undefined)
         });         
     }
     
