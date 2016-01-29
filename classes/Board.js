@@ -117,15 +117,14 @@ class Board {
             .map(board => new Board(board));
     }
     
-    static *getBulk(name) {
-        let board = yield* Board.getOrAdd(name),
-            bulkData = yield trello.get(board.id, {
+    static *getRawBulk(board) {
+        let bulkData = yield trello.get(board.id, {
                 lists: 'open',
                 cards: 'open',
                 card_checklists: 'all',                
                 members: 'all',
                 labels: 'all'
-            });               
+            });
         
         // because the bulk board get only returns memberIds for cards, not full member objects
         bulkData.cards.forEach(c => {
@@ -138,6 +137,13 @@ class Board {
             });                
         });
         
+        return bulkData;
+    }
+    
+    static *getBulk(name) {
+        let board = yield* Board.getOrAdd(name),
+            bulkData = yield* Board.getRawBulk(board);
+            
         return new Board(bulkData);        
     }
 }
