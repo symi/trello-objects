@@ -71,6 +71,7 @@ class Board {
         }        
     }
     
+    // return array maybe?
     *iterateAllCards(callbackFn, context) {        
         for (let l of yield* this.getLists()) {
             for (let c of yield* l.getCards()) {
@@ -134,7 +135,15 @@ class Board {
                 if (member) {
                     c.members.push(member);
                 }  
-            });                
+            });
+            
+            // also move the cards under the correct list
+            let list = bulkData.lists.find(l => l.id === c.idList);
+            if (Array.isArray(list.cards)) {
+                list.cards.push(c);
+            } else {
+                list.cards = [c];
+            }                            
         });
         
         return bulkData;
