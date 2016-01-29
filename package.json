@@ -1,6 +1,6 @@
 {
   "name": "trello-objects",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Domain classes representing Trello objects",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,7 @@
   "author": "Si Levy <simonjlevy@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "request-promise": "^1.0.2",
+    "request-promise": "^2.0.0",
     "simple-rate-limiter": "^0.2.3"
   }
 }
