@@ -6,7 +6,9 @@ The library contains methods to incrementally build up local objects from Trello
 
 The node requirement for *trello-objects* is v4+ as the library takes advantage of generators for many of it's class methods.
 For that reason async methods should be called with `yield*` (see [API docs](https://github.com/symi/trello-objects/blob/master/API.md)). The class libraries are designed to be used via the classes static methods, as these abstract away Trello API calls. 
-Direct instantiations of the classes is possible however all domain classes' constructors require the raw json returned from Trello's API. 
+Direct instantiations of the classes is possible however all domain classes' constructors require the raw json returned from Trello's API.
+
+All Trello API calls are rate limited at the single token rate defined in [this article](http://help.trello.com/article/838-api-rate-limits).
 
 *Note: The library was created with the APIs to cover a personal project, so there maybe areas of the full Trello API which are not implemented.*
 
